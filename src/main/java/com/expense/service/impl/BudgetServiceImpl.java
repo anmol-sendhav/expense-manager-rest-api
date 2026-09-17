@@ -25,10 +25,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BudgetServiceImpl implements BudgetService {
 
-    private  UserRepository userRepository;
-    private  BudgetRepository budgetRepository;
-    private  ExpenseRepository expenseRepository;
-    private BudgetMapper mapper;
+    private  final UserRepository userRepository;
+    private  final BudgetRepository budgetRepository;
+    private  final ExpenseRepository expenseRepository;
+    private final BudgetMapper mapper;
 
 	@Override
 	public BudgetResponseDto saveBudget(BudgetRequestDto dto) {

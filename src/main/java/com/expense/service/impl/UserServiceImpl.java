@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.expense.dto.request.LoginRequestDto;
 import com.expense.dto.request.RegisterRequestDto;
 import com.expense.dto.request.UserRequestDto;
+import com.expense.dto.response.RegisterResponseDto;
 import com.expense.dto.response.UserResponseDto;
 import com.expense.entity.User;
 import com.expense.exception.ResourceNotFoundException;
@@ -159,16 +160,25 @@ public class UserServiceImpl implements UserService{
 		userRepository.deleteById(id);
 	}	
 	
-	public User register(RegisterRequestDto request) {
-		User user=new User();
-		
-		user.setName(request.getUsername());
-		user.setPassword(passwordEncoder.encode(request.getPassword()));
-		user.setEmail(request.getEmail());
-		
-		return userRepository.save(user);
-		
+	public RegisterResponseDto register(RegisterRequestDto request) {
+
+	    User user = new User();
+
+	    user.setName(request.getUsername());
+	    user.setPassword(passwordEncoder.encode(request.getPassword()));
+	    user.setEmail(request.getEmail());
+
+	    User savedUser = userRepository.save(user);
+
+	    RegisterResponseDto response = new RegisterResponseDto();
+
+	    response.setId(savedUser.getId());
+	    response.setUsername(savedUser.getName());
+	    response.setEmail(savedUser.getEmail());
+
+	    return response;
 	}
+	
 	@Override
 	public String login(LoginRequestDto request) {
 

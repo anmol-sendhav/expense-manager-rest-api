@@ -8,8 +8,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.expense.dto.request.LoginRequestDto;
 import com.expense.dto.request.RegisterRequestDto;
 import com.expense.dto.request.UserRequestDto;
+import com.expense.dto.response.RegisterResponseDto;
 import com.expense.dto.response.UserResponseDto;
-import com.expense.entity.User;
 
 @Service
 public interface UserService {
@@ -20,6 +20,6 @@ public interface UserService {
 	public UserResponseDto updateUser(UserRequestDto user,int user_id);
 	public void deleteById(int id);
 	//public void updateUser(UserRequestDto user, int user_id);
-	public User register(RegisterRequestDto request);
+	public RegisterResponseDto register(RegisterRequestDto request);
 	public String login(LoginRequestDto request);
 }

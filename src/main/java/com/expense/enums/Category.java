@@ -4,7 +4,7 @@ public enum Category {
 	    Shopping,
 		Entertaiment,
 		Rent,
-		ElectricityBills,
+		Electricity_Bills,
 		Education,
 		Food,
 		Travel,
