@@ -1,8 +1,11 @@
 package com.expense.dto.response;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+
 import com.expense.enums.Category;
 import com.expense.enums.PaymentMethod;
+
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
@@ -23,5 +26,6 @@ public class ExpenseResponseDto {
 	private Category category;
 	@Enumerated(EnumType.STRING)
 	private PaymentMethod paymentMethod;
-	private Integer userId;
+	private Integer expenseId;
+	private LocalDate date;
 }

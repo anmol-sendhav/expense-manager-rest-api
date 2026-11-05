@@ -1,10 +1,5 @@
 package com.expense.service.impl;
 
-import com.expense.repository.UserRepository;
-import com.expense.service.ExpenseService;
-
-import lombok.RequiredArgsConstructor;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +16,10 @@ import com.expense.entity.User;
 import com.expense.enums.Category;
 import com.expense.exception.ResourceNotFoundException;
 import com.expense.repository.ExpenseRepository;
+import com.expense.repository.UserRepository;
+import com.expense.service.ExpenseService;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -28,68 +27,80 @@ public class ExpenseServiceImpl implements ExpenseService {
 
 	private final UserRepository userRepository;
 	private final ExpenseRepository expenseRepository;
-	
-	public Expenses addExpense(ExpenseRequestDto request) {
 
-		User user = userRepository.findById(request.getUserId())
-		        .orElseThrow(() -> new ResourceNotFoundException("User Not Found"));
-		
-		Expenses expense=new Expenses();
-		
-		expense.setTitle(request.getTitle());
-		expense.setCategory(request.getCategory());
-		expense.setAmount(request.getAmount());
-		expense.setDescription(request.getDescription());
-		expense.setPaymentMethod(request.getPaymentMethod());
-		expense.setUser(user);
-		expense.setDate(LocalDate.now());
-		
-		return expenseRepository.save(expense);
 
-	}
-	
-	public List <ExpenseResponseDto> getAllExpenses() {
+@Override
+public Expenses addExpense(ExpenseRequestDto request, Integer userId) {
 
-		List<Expenses> expense=expenseRepository.findAll();
-		List<ExpenseResponseDto> responses1=new ArrayList<>();
-		
-		for(Expenses expenses:expense) {
-			ExpenseResponseDto response =new ExpenseResponseDto();
-			
-			response.setAmount(expenses.getAmount());
-			response.setCategory(expenses.getCategory());
-			response.setDescription(expenses.getDescription());
-			response.setPaymentMethod(expenses.getPaymentMethod());
-			response.setTitle(expenses.getTitle());
-			response.setUserId(expenses.getExpenseId());
-			
-			responses1.add(response);
-		}
-			return responses1;
-	}
+    User user = userRepository.findById(userId)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException("User Not Found"));
+
+    Expenses expense = new Expenses();
+
+    expense.setTitle(request.getTitle());
+    expense.setCategory(request.getCategory());
+    expense.setAmount(request.getAmount());
+    expense.setDescription(request.getDescription());
+    expense.setPaymentMethod(request.getPaymentMethod());
+    expense.setUser(user);
+    expense.setDate(LocalDate.now());
+
+    return expenseRepository.save(expense);
+}
+
+
+
+
+@Override
+public List<ExpenseResponseDto> getAllExpenses(Integer userId) {
+
+    List<Expenses> expenses = expenseRepository.findByUser_Id(userId);
+    List<ExpenseResponseDto> responses = new ArrayList<>();
+
+    for (Expenses expense : expenses) {
+        ExpenseResponseDto response = new ExpenseResponseDto();
+
+        response.setExpenseId(expense.getExpenseId());
+        response.setTitle(expense.getTitle());
+        response.setAmount(expense.getAmount());
+        response.setDescription(expense.getDescription());
+        response.setCategory(expense.getCategory());
+        response.setPaymentMethod(expense.getPaymentMethod());
+        response.setDate(expense.getDate());
+
+        responses.add(response);
+    }
+
+    return responses;
+}
 
 	@Override
-	public ExpenseResponseDto getExpensesById(Integer id) {
-		Expenses expense=expenseRepository
-				.findById(id)
-				.orElseThrow(() ->
-				new ResourceNotFoundException("Expenses not found with id"+id));
-		
-		ExpenseResponseDto response=new ExpenseResponseDto();
-		
-		response.setAmount(expense.getAmount());
-		response.setCategory(expense.getCategory());
-		response.setDescription(expense.getDescription());
-		response.setPaymentMethod(expense.getPaymentMethod());
-		response.setTitle(expense.getTitle());
-		response.setUserId(expense.getExpenseId());
-		
-		return response;
+	public ExpenseResponseDto getExpensesById(
+	        Integer expenseId,
+	        Integer userId) {
+
+	    Expenses expense = expenseRepository
+	            .findByExpenseIdAndUser_Id(expenseId, userId)
+	            .orElseThrow(() ->
+	                    new RuntimeException("Expense not found"));
+
+	    ExpenseResponseDto response = new ExpenseResponseDto();
+
+	    response.setExpenseId(expense.getExpenseId());
+	    response.setTitle(expense.getTitle());
+	    response.setAmount(expense.getAmount());
+	    response.setDescription(expense.getDescription());
+	    response.setDate(LocalDate.now());
+	    response.setCategory(expense.getCategory());
+	    response.setPaymentMethod(expense.getPaymentMethod());
+
+	    return response;
 	}
-	
-	public Expenses updateExpense(ExpenseRequestDto request, int expense_id) {
-		Expenses e=expenseRepository.findById(expense_id).orElseThrow(
-				() -> new ResourceNotFoundException("Expense not found with id:"+expense_id));
+	@Override
+	public Expenses updateExpense(ExpenseRequestDto request,Integer expenseId,Integer userId) {
+		Expenses e=expenseRepository.findByExpenseIdAndUser_Id(expenseId, userId)
+			    .orElseThrow(() -> new RuntimeException("Expense not found"));
 		if(e != null) {
 			e.setAmount(request.getAmount());
 			e.setCategory(request.getCategory());
@@ -100,10 +111,20 @@ public class ExpenseServiceImpl implements ExpenseService {
 			return expenseRepository.save(e);
 	}
 
-	public void deleteExpenseById(int id) {
-		expenseRepository.deleteById(id);;
-		
-	}
+
+@Override
+public void deleteExpenseById(
+        Integer expenseId,
+        Integer userId) {
+
+    Expenses expense = expenseRepository
+            .findByExpenseIdAndUser_Id(expenseId, userId)
+            .orElseThrow(() ->
+                    new RuntimeException("Expense not found"));
+
+    expenseRepository.delete(expense);
+}
+
 
 	@Override
 	public List<Expenses> searchByCategory(Integer userId, Category category) {
@@ -133,9 +154,14 @@ public class ExpenseServiceImpl implements ExpenseService {
 				.findByUserIdAndDateGreaterThanEqualAndDateLessThan(userId,from,to);
 	}
 
-public Page<Expenses> getExpenses(int page, int size){
+@Override
+public Page<Expenses> getExpenses(
+        int page,
+        int size,
+        Integer userId) {
 
-    Pageable pageable =PageRequest.of(page,size);
-    return expenseRepository.findAll(pageable);
+    Pageable pageable = PageRequest.of(page, size);
+
+    return expenseRepository.findByUser_Id(userId, pageable);
 }
 }

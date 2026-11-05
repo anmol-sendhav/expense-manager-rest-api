@@ -2,6 +2,7 @@ package com.expense.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,28 +20,30 @@ import jakarta.validation.Valid;
 public class AuthController {
 
 	private UserService userService;
-	
+
 	private AuthService authService;
-	
+
 	public AuthController(UserService userService,AuthService service) {
 		this.userService=userService;
 		this.authService=service;
 	}
-	
+
 	@PostMapping("/register")
 	public ResponseEntity<?> register(@Valid @RequestBody RegisterRequestDto request){
 			return ResponseEntity.ok(this.userService.register(request));
 	}
-	
+
 	@PostMapping("/login")
-	public ResponseEntity<String> login(@RequestBody LoginRequestDto
-			request){
-		try {
-			String token=this.authService.login(request);
-			return ResponseEntity.ok(token);
-		}catch(Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body(e.getMessage());
-		}
-	}
+	public ResponseEntity<?> login(
+	        @RequestBody LoginRequestDto request) {
+
+	    try {
+	        String token = authService.login(request);
+	        return ResponseEntity.ok(token);
+	    } catch (AuthenticationException ex) {
+	        return ResponseEntity
+	                .status(HttpStatus.UNAUTHORIZED)
+	                .body(java.util.Map.of("message","Invalid email or password"));
+	    }
+}
 }

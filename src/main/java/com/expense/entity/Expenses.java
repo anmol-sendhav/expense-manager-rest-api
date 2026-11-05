@@ -33,7 +33,7 @@ import lombok.Setter;
 @EntityListeners(AuditingEntityListener.class)
 public class Expenses {
 
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer expenseId;

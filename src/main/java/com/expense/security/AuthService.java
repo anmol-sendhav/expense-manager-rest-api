@@ -26,8 +26,8 @@ public class AuthService {
     private UserRepository userRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
-    
-    
+
+
     public String login(LoginRequestDto loginRequestDto) {
 
         Authentication authentication =
@@ -46,12 +46,12 @@ public class AuthService {
         return authUtil.generateAccessToken(user);
     }
 
-    
+
 public LoginResponseDto signUp(LoginRequestDto loginRequestDto) {
 		User user = userRepository.findByEmail(
 			    loginRequestDto.getEmail()
 			).orElse(null);
-		
+
 		if(user != null) {
 		throw new IllegalArgumentException("User ALready Exist");
 		}

@@ -12,7 +12,7 @@ public class ErorResponse {
 	private int status;
 	private String message;
 	private LocalDateTime timestap;
-	
+
 	public ErorResponse(int status,String message) {
 		this.status=status;
 		this.message=message;

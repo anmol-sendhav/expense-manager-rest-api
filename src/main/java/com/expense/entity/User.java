@@ -8,11 +8,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import lombok.Setter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -35,13 +35,13 @@ public class User {
 	private String city;
 	private String phone;
 	private String picture;
-	
+
 	@OneToMany
 	private List<Expenses> expense;
-	
+
 	@OneToMany
 	private List<Income> income;
-	
+
 	@OneToMany
 	private List<Budget> budget;
 }

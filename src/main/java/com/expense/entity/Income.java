@@ -19,6 +19,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -44,7 +46,15 @@ public class Income {
 	private LocalDateTime updatedAt;
 	private BigDecimal amount;
 	private String description;
-	private LocalDate amountDate;
+	@NotNull
+    private LocalDate amountDate;
+
+    @PrePersist
+    public void setAmountDateOnCreate() {
+        if (amountDate == null) {
+            amountDate = LocalDate.now();
+        }
+    }
 	@Enumerated(EnumType.STRING)
 	private PaymentWay paymentWay;
 	@ManyToOne

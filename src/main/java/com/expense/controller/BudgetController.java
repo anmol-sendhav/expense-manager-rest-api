@@ -23,11 +23,11 @@ import com.expense.service.BudgetService;
 public class BudgetController {
 
 	private BudgetService budgetService;
-	
+
 	public BudgetController(BudgetService budgetService) {
 		this.budgetService=budgetService;
 	}
-	
+
 	@PostMapping("/addBudget")
 	public ResponseEntity<?> savesBudget(@RequestBody BudgetRequestDto budget){
 		try {
@@ -39,12 +39,12 @@ public class BudgetController {
 					.body(e.getMessage());
 		}
 	}
-	
+
 	@GetMapping("/getAllBudget")
 	public List<BudgetResponseDto> getAllBudget(){
 		return this.budgetService.getAllBudgetsForUser();
 		}
-	
+
 	@GetMapping("/getBudget/{id}")
 	public ResponseEntity<?> getBudgetByIds(@PathVariable int id){
 		try {
@@ -54,13 +54,13 @@ public class BudgetController {
 					.build();
 		}
 	}
-	
-	
+
+
 	@DeleteMapping("/deleteBudget/{id}")
 	public void deleteBudgetById(@PathVariable int id) {
 		this.budgetService.deleteBudgetById(id);
 	}
-	
+
 	@PutMapping("/modifyBudget/{id}")
 	public ResponseEntity<?> modifyBudget(@RequestBody BudgetRequestDto dto,
 		@PathVariable int id){
@@ -71,10 +71,9 @@ public class BudgetController {
 					.body(e.getMessage());
 		}
 	}
-	
+
 	@GetMapping("/{budgetId}/usage")
 	public ResponseEntity<BudgetUsageDto> budgetUsage(@PathVariable Integer budgetId){
 		return ResponseEntity.ok(budgetService.getBudgetUsage(budgetId));
 	}
 	}
-	

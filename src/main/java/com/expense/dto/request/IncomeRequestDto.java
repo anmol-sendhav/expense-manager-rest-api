@@ -1,7 +1,7 @@
 package com.expense.dto.request;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.expense.enums.PaymentWay;
@@ -24,19 +24,16 @@ import lombok.Setter;
 @EntityListeners(AuditingEntityListener.class)
 public class IncomeRequestDto {
 
-	@NotNull(message="Title is required")
+	 @NotBlank(message = "Title is required")
 	private String title;
-	@NotBlank(message="Source is required")
+	 @NotBlank(message = "Source is required")
 	private String source;
 	@Enumerated(EnumType.STRING)
-	@NotBlank(message="PaymentWay required")
+	@NotNull(message = "Payment way is required")
 	private PaymentWay paymentWay;
-	@Positive(message="Amount must be positive")
-	@NotBlank
+	 @NotNull(message = "Amount is required")
+	    @Positive(message = "Amount must be positive")
 	private BigDecimal amount;
 	@NotBlank(message="description is required")
 	private String description;
-	private Integer userId;
-	@NotBlank
-	private LocalDate amountDate;
 }

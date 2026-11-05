@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,10 +33,10 @@ public class UserServiceImpl implements UserService{
 
 	private final UserRepository userRepository;
 	private PasswordEncoder passwordEncoder;
-	
+
 	private final AuthenticationManager authenticationManager;
     private final AuthUtil authUtil;
-	
+
 	public UserServiceImpl(UserRepository userRepository,PasswordEncoder passwordEncoder,
 	AuthenticationManager authenticationManager,AuthUtil authUtil)
 	{
@@ -45,11 +45,11 @@ public class UserServiceImpl implements UserService{
 		this.authenticationManager = authenticationManager;
         this.authUtil = authUtil;
 	}
-	
+
 	/*
 	public User saveUser(UserRequestDto request){
 		    User user = new User();
-		    
+
 		    user.setName(request.getName());
 		    user.setEmail(request.getEmail());
 		    user.setAge(request.getAge());
@@ -61,8 +61,9 @@ public class UserServiceImpl implements UserService{
 		    return userRepository.save(user);
 		}
 	*/
-	
-		
+
+
+	@Override
 	public UserRequestDto saveUser(UserRequestDto dto,MultipartFile file)throws IOException {
 
 	    User user = new User();
@@ -73,13 +74,13 @@ public class UserServiceImpl implements UserService{
 	    user.setAddress(dto.getAddress());
 	    user.setCity(dto.getCity());
 	    user.setPhone(dto.getPhone());
-	    
+
 	    if (file != null && !file.isEmpty()) {
-	    	
+
 	        String fileName =UUID.randomUUID()+ "_"+ file.getOriginalFilename();
 	        Path path = Paths.get("D:\\My Movies\\College").resolve(fileName);
 	        Files.copy(file.getInputStream(),path,StandardCopyOption.REPLACE_EXISTING);
-	        user.setPicture("profile/" + fileName);    
+	        user.setPicture("profile/" + fileName);
 	    }
 	    User savedUser = userRepository.save(user);
 
@@ -93,11 +94,12 @@ public class UserServiceImpl implements UserService{
 
 	    return response;
 	}
-	
+
+	@Override
 	public List<UserResponseDto> getAllUser(){
 		List<User> user=(List<User>) userRepository.findAll();
 		List<UserResponseDto> responses=new ArrayList<>();
-		
+
 		for(User users:user) {
 			UserResponseDto response =new UserResponseDto();
 			response.setAddress(users.getAddress());
@@ -107,16 +109,17 @@ public class UserServiceImpl implements UserService{
 			response.setName(users.getName());
 			response.setPhone(users.getPhone());
 			response.setPicture(users.getPicture());
-			
+
 			 responses.add(response);
 		}
 		return responses;
 	}
-	
+
+	@Override
 	public UserResponseDto getUserById(int id) {
 		User user=userRepository.findById(id).orElseThrow(() ->
 		new ResourceNotFoundException("User not found with"+id));
-		
+
 		UserResponseDto response=new UserResponseDto();
 		response.setAddress(user.getAddress());
 		response.setAge(user.getAge());
@@ -125,15 +128,16 @@ public class UserServiceImpl implements UserService{
 		response.setName(user.getName());
 		response.setPhone(user.getPhone());
 		response.setPicture(user.getPicture());
-		
+
 		return response;
 	}
-	
+
+	@Override
 	public UserResponseDto updateUser(UserRequestDto user,int id) {
 		User u=userRepository.findById(id)
 				.orElseThrow(
 				() -> new ResourceNotFoundException("User not found"));
-	
+
 			u.setName(user.getName());
 			u.setAddress(user.getAddress());
 			u.setAge(user.getAge());
@@ -141,9 +145,9 @@ public class UserServiceImpl implements UserService{
 			u.setEmail(user.getEmail());
 			u.setPhone(user.getPhone());
 			u.setPicture(user.getPicture());
-			
+
 			User saved= userRepository.save(u);
-			
+
 			UserResponseDto response=new UserResponseDto();
 			response.setAddress(saved.getAddress());
 			response.setAge(saved.getAge());
@@ -152,15 +156,21 @@ public class UserServiceImpl implements UserService{
 			response.setName(saved.getName());
 			response.setPhone(saved.getPhone());
 			response.setPicture(saved.getPicture());
-			
+
 			return response;
 	}
-	
+
+	@Override
 	public void deleteById(int id) {
 		userRepository.deleteById(id);
-	}	
-	
+	}
+
+	@Override
 	public RegisterResponseDto register(RegisterRequestDto request) {
+
+	    if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+	        throw new IllegalArgumentException("Email is already registered");
+	    }
 
 	    User user = new User();
 
@@ -178,7 +188,7 @@ public class UserServiceImpl implements UserService{
 
 	    return response;
 	}
-	
+
 	@Override
 	public String login(LoginRequestDto request) {
 
@@ -187,8 +197,7 @@ public class UserServiceImpl implements UserService{
 	                    new UsernamePasswordAuthenticationToken(
 	                            request.getEmail(),
 	                            request.getPassword()
-	                    )
-	            );
+	                    ));
 
 	    Object principal = authentication.getPrincipal();
 

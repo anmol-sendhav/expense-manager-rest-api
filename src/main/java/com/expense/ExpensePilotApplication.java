@@ -11,5 +11,4 @@ public class ExpensePilotApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ExpensePilotApplication.class, args);
 	}
-
 }

@@ -22,7 +22,7 @@ public class PdfController {
 
 	private final ExpenseRepository expenseRepository;
 	private final PdfService pdfService;
-	
+
 	public PdfController(ExpenseRepository expenseRepository,PdfService pdfService) {
 		this.expenseRepository=expenseRepository;
 		this.pdfService=pdfService;

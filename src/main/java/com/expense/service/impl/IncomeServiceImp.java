@@ -1,7 +1,9 @@
 package com.expense.service.impl;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.expense.dto.request.IncomeRequestDto;
@@ -18,91 +20,102 @@ public class IncomeServiceImp implements IncomeService {
 
 	private IncomeRepository incomeRepository;
 	private UserRepository userRepository;
-	
+
 	public IncomeServiceImp(IncomeRepository incomeRepository,UserRepository userRepository) {
 		this.incomeRepository=incomeRepository;
 		this.userRepository=userRepository;
 	}
-	
-	@Override
-	public Income addIncome(IncomeRequestDto request) {
-	
-		User user =userRepository.findById(request.getUserId())
-		        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-		
-		Income incomes=new Income();
-		
-		incomes.setAmount(request.getAmount());
-		incomes.setAmountDate(request.getAmountDate());
-		incomes.setDescription(request.getDescription());
-		incomes.setPaymentWay(request.getPaymentWay());
-		incomes.setSource(request.getSource());
-		incomes.setTitle(request.getTitle());
-		incomes.setUser(user);
-		//incomes.setUserIncomeId(request.getUserId());
-		
-		return incomeRepository.save(incomes);
-	}
 
 	@Override
-	public Income updateIncome(IncomeRequestDto request, Integer userId) {
-		Income income=incomeRepository.findById(userId)
-				.orElseThrow(() -> new ResourceNotFoundException("income not found"+userId));
-		if(income != null) {
-			income.setAmount(request.getAmount());
-			income.setAmountDate(request.getAmountDate());
-			income.setDescription(request.getDescription());
-			income.setPaymentWay(request.getPaymentWay());
-			income.setSource(request.getSource());
-			income.setTitle(request.getTitle());
-			income.setUserIncomeId(request.getUserId());
-			incomeRepository.save(income);
-		}
-		return null;
+	public Income addIncome(IncomeRequestDto request, Integer userId) {
+
+	    User user = userRepository.findById(userId)
+	            .orElseThrow(() ->
+	                    new ResourceNotFoundException("User not found"));
+
+	    Income income = new Income();
+
+	    income.setAmount(request.getAmount());
+	    income.setDescription(request.getDescription());
+	    income.setPaymentWay(request.getPaymentWay());
+	    income.setSource(request.getSource());
+	    income.setTitle(request.getTitle());
+	    income.setUser(user);
+	    income.setAmountDate(LocalDate.now());
+
+	    return incomeRepository.save(income);
 	}
+
+@Override
+public Income updateIncome(IncomeRequestDto request,Integer incomeId,Integer userId) {
+
+	Income income = incomeRepository.findByUserIncomeIdAndUser_Id(incomeId, userId)
+	.orElseThrow(() -> new RuntimeException("Income not found"));
+
+    income.setAmount(request.getAmount());
+    income.setDescription(request.getDescription());
+    income.setPaymentWay(request.getPaymentWay());
+    income.setSource(request.getSource());
+    income.setTitle(request.getTitle());
+
+    return incomeRepository.save(income);
+}
+
+@Override
+public void deleteIncomeById(Integer incomeId, Integer userId) {
+    Income income = incomeRepository
+            .findByUserIncomeIdAndUser_Id(incomeId, userId)
+            .orElseThrow(() ->
+                    new RuntimeException("Income not found"));
+
+    incomeRepository.delete(income);
+}
+
+
+@Override
+public List<IncomeResponseDto> incomeHistory(Integer userId) {
+
+    List<Income> incomes = incomeRepository.findByUser_Id(userId);
+    List<IncomeResponseDto> responses = new ArrayList<>();
+
+    for (Income income : incomes) {
+        IncomeResponseDto response = new IncomeResponseDto();
+
+        response.setIncomeId(income.getUserIncomeId());
+        response.setTitle(income.getTitle());
+        response.setSource(income.getSource());
+        response.setAmount(income.getAmount());
+        response.setDescription(income.getDescription());
+        response.setAmountDate(income.getAmountDate());
+        response.setPaymentWay(income.getPaymentWay());
+
+        responses.add(response);
+    }
+
+    return responses;
+}
+
 
 	@Override
-	public void deleteIncomeById(int userId) {
-		this.incomeRepository.deleteById(userId);
-		
-	}
+	public IncomeResponseDto incomeHistoryByIncomeId(
+	        Integer incomeId,
+	        Integer userId) {
 
-	@Override
-	public List <IncomeResponseDto> incomeHistory() {
-		List<Income> incomes=(List<Income>) incomeRepository.findAll();
-	    List<IncomeResponseDto> responses=new ArrayList<>();
-		
-		for(Income income : incomes) {
-			IncomeResponseDto response=new IncomeResponseDto();
-			
-			response.setAmount(income.getAmount());
-			response.setAmountDate(income.getAmountDate());
-			response.setDescription(income.getDescription());
-			response.setPaymentWay(income.getPaymentWay());
-			response.setSource(income.getSource());
-			response.setTitle(income.getTitle());
-			response.setUserId(income.getUserIncomeId());
-			
-			responses.add(response);
-		}
-		return responses;
-	}
+	    Income income = incomeRepository
+	            .findByUserIncomeIdAndUser_Id(incomeId, userId)
+	            .orElseThrow(() ->
+	                    new RuntimeException("Income not found"));
 
-	@Override
-	public IncomeResponseDto incomeHistoryByIncomeId(int id) {
-		Income income=incomeRepository.findById(id).orElseThrow(() ->
-		new ResourceNotFoundException("Income Not Found With"+id));
-		
-		IncomeResponseDto response=new IncomeResponseDto();
-		response.setAmount(income.getAmount());
-		response.setAmountDate(income.getAmountDate());
-		response.setDescription(income.getDescription());
-		response.setPaymentWay(income.getPaymentWay());
-		response.setSource(income.getSource());
-		response.setTitle(income.getTitle());
-		response.setUserId(income.getUserIncomeId());
-		
-		return response;
-	}
+	    IncomeResponseDto response = new IncomeResponseDto();
 
+	    response.setIncomeId(income.getUserIncomeId());
+	    response.setTitle(income.getTitle());
+	    response.setSource(income.getSource());
+	    response.setAmount(income.getAmount());
+	    response.setDescription(income.getDescription());
+	    response.setAmountDate(income.getAmountDate());
+	    response.setPaymentWay(income.getPaymentWay());
+
+	    return response;
+	}
 }

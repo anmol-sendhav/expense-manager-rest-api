@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,7 +16,7 @@ import jakarta.annotation.PostConstruct;
 public class FileService {
 
 	private final Path uploadPath=Paths.get("uploads/profile");
-	
+
 	@PostConstruct
 	public void init() throws IOException {
 	    try {
@@ -24,12 +25,12 @@ public class FileService {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public String saveFile(MultipartFile file)throws IOException, java.io.IOException {
 	    String originalFileName = file.getOriginalFilename();
 	    String extension = "";
-	    
-	    if (originalFileName != null && originalFileName.contains(".")) 
+
+	    if (originalFileName != null && originalFileName.contains("."))
 	    {
 	        extension = originalFileName.substring(originalFileName.lastIndexOf("."));
 	    }

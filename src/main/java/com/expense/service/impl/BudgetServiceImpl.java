@@ -21,93 +21,118 @@ import com.expense.repository.UserRepository;
 import com.expense.service.BudgetService;
 
 import lombok.RequiredArgsConstructor;
+
 @Service
 @RequiredArgsConstructor
 public class BudgetServiceImpl implements BudgetService {
 
-    private  final UserRepository userRepository;
-    private  final BudgetRepository budgetRepository;
-    private  final ExpenseRepository expenseRepository;
+    private final UserRepository userRepository;
+    private final BudgetRepository budgetRepository;
+    private final ExpenseRepository expenseRepository;
     private final BudgetMapper mapper;
 
-	@Override
-	public BudgetResponseDto saveBudget(BudgetRequestDto dto) {
-		Budget budget = mapper.toEntity(dto);
-		User user = userRepository.findByEmail(
-	            SecurityContextHolder.getContext()
-	                    .getAuthentication()
-	                    .getName()
-	    ).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    private User getCurrentUser() {
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication().getName();
 
-	    budget.setUser(user);
-		Budget savedBudget=budgetRepository.save(budget);
-		return mapper.toDto(savedBudget);
-	}
-	
-	@Override
-	public List<BudgetResponseDto> getAllBudgetsForUser() {
-		List<Budget> budgets=budgetRepository.findAll();
-		return mapper.toDto(budgets);
-	}
+        return userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+    }
 
-	@Override
-	public BudgetResponseDto getBudgetById(int id) {
-		Budget budgets=budgetRepository.findById(id).orElseThrow();
-		return mapper.toDto(budgets);
-	}
+    private Budget getOwnedBudget(Integer id, Integer userId) {
+        return budgetRepository.findByIdAndUser_Id(id, userId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Budget not found"));
+    }
 
-	@Override
-	public BudgetResponseDto updateBudget(BudgetRequestDto request, int id) {
-		Budget budget = budgetRepository.findById(id)
-		.orElseThrow(() -> new RuntimeException());
-		mapper.updateBudgetFromDto(request, budget);
-		Budget updated = budgetRepository.save(budget);
-		return mapper.toDto(updated);
-	}
+    @Override
+    public BudgetResponseDto saveBudget(BudgetRequestDto dto) {
+        User user = getCurrentUser();
 
-	@Override
-	public void deleteBudgetById(int id) {
-		this.budgetRepository.deleteById(id);
-	}
+        Budget budget = mapper.toEntity(dto);
+        budget.setUser(user);
 
-	@Override
-	public BudgetUsageDto getBudgetUsage(int budgetID) {
-		Budget budget = budgetRepository.findById(budgetID)
-				.orElseThrow(()-> new ResourceNotFoundException("Budget Not Found with"+budgetID));
-		
-		LocalDate month=budget.getMonth();
-		LocalDate start=month.withDayOfMonth(1);
-		LocalDate end=start.plusMonths(1);
-		
-		BigDecimal usedAmount =expenseRepository.getTotalExpenseForBudget(
-                        budget.getUser().getId(),
+        return mapper.toDto(budgetRepository.save(budget));
+    }
+
+    @Override
+    public List<BudgetResponseDto> getAllBudgetsForUser() {
+        User user = getCurrentUser();
+
+        return mapper.toDto(
+                budgetRepository.findAllByUser_Id(user.getId()));
+    }
+
+    @Override
+    public BudgetResponseDto getBudgetById(int id) {
+        User user = getCurrentUser();
+
+        return mapper.toDto(getOwnedBudget(id, user.getId()));
+    }
+
+    @Override
+    public BudgetResponseDto updateBudget(
+            BudgetRequestDto request, int id) {
+
+        User user = getCurrentUser();
+        Budget budget = getOwnedBudget(id, user.getId());
+
+        mapper.updateBudgetFromDto(request, budget);
+
+        return mapper.toDto(budgetRepository.save(budget));
+    }
+
+    @Override
+    public void deleteBudgetById(int id) {
+        User user = getCurrentUser();
+        Budget budget = getOwnedBudget(id, user.getId());
+
+        budgetRepository.delete(budget);
+    }
+
+    @Override
+    public BudgetUsageDto getBudgetUsage(int budgetId) {
+        User user = getCurrentUser();
+        Budget budget = getOwnedBudget(budgetId, user.getId());
+
+        LocalDate start = budget.getMonth().withDayOfMonth(1);
+        LocalDate end = start.plusMonths(1);
+
+        BigDecimal usedAmount =
+                expenseRepository.getTotalExpenseForBudget(
+                        user.getId(),
                         budget.getCategory(),
                         start,
                         end);
 
-        BigDecimal budgetAmount =budget.getBudgetAmount();
-        BigDecimal remainingAmount =budgetAmount.subtract(usedAmount);
-        BigDecimal usagePercentage;
-
-        if (budgetAmount.compareTo(BigDecimal.ZERO) == 0) {
-            usagePercentage = BigDecimal.ZERO;
-        }else{
-            usagePercentage =usedAmount
-                        .multiply(BigDecimal.valueOf(100))
-                        .divide(budgetAmount,2,RoundingMode.HALF_UP);
+        if (usedAmount == null) {
+            usedAmount = BigDecimal.ZERO;
         }
+
+        BigDecimal budgetAmount = budget.getBudgetAmount();
+        BigDecimal remainingAmount =
+                budgetAmount.subtract(usedAmount);
+
+        BigDecimal usagePercentage = BigDecimal.ZERO;
+
+        if (budgetAmount.compareTo(BigDecimal.ZERO) > 0) {
+            usagePercentage = usedAmount
+                    .multiply(BigDecimal.valueOf(100))
+                    .divide(budgetAmount, 2, RoundingMode.HALF_UP);
+        }
+
         String status;
 
         if (usagePercentage.compareTo(BigDecimal.valueOf(100)) >= 0) {
             status = "EXCEEDED";
-        } else if (usagePercentage.compareTo(
-                BigDecimal.valueOf(80)) >= 0) {
+        } else if (usagePercentage.compareTo(BigDecimal.valueOf(80)) >= 0) {
             status = "WARNING";
         } else {
             status = "SAFE";
         }
-        BudgetUsageDto dto = new BudgetUsageDto();
 
+        BudgetUsageDto dto = new BudgetUsageDto();
         dto.setBudgetId(budget.getId());
         dto.setBudgetAmount(budgetAmount);
         dto.setUsedAmount(usedAmount);
@@ -116,5 +141,5 @@ public class BudgetServiceImpl implements BudgetService {
         dto.setStatus(status);
 
         return dto;
-	}
+    }
 }

@@ -16,5 +16,8 @@ public enum Category {
 		Clothes,
 		PREMIUM_SUBSCRIPTION_MONTHLY,
 		Vegetables,
+		Freelance,
+		Petrol,
+		Transport,
 		Other
 	}

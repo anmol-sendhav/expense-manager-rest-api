@@ -1,6 +1,7 @@
 package com.expense.controller;
 
 import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,30 +26,30 @@ import jakarta.validation.Valid;
 public class UserController {
 
 	private UserService userService;
-	
+
 	public UserController(UserService userService) {
 		this.userService=userService;
 	}
-	
+
 	@PostMapping("/users")
 	public ResponseEntity <UserRequestDto> saveTheUser(@Valid
 			@ModelAttribute UserRequestDto user,MultipartFile file)
 			throws Exception{
-		
+
 		UserRequestDto request=userService.saveUser(user, file);
 		return ResponseEntity.ok(request);
 	}
-	
+
 	@GetMapping("/all")
 	public  List <UserResponseDto> getAllUsers(){
-      return (List<UserResponseDto>) this.userService.getAllUser();
+      return this.userService.getAllUser();
 	}
-	
+
 	@GetMapping("/users/{id}")
 	public UserResponseDto getAll(@PathVariable int id) {
 			return this.userService.getUserById(id);
 	}
-	
+
 	@DeleteMapping("/delete/{id}")
 	public ResponseEntity <String> deleteId(@Valid @PathVariable int id) {
 		try {
@@ -59,7 +60,7 @@ public class UserController {
 				.build();
 	}
 	}
-	
+
 	@PutMapping("/update/{user_id}")
 	public ResponseEntity <UserResponseDto> updateUsers(@Valid @RequestBody UserRequestDto user,
 			@PathVariable int user_id) {

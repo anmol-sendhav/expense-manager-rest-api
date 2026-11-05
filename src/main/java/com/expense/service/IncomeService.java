@@ -8,9 +8,9 @@ import com.expense.entity.Income;
 
 public interface IncomeService {
 
-public Income addIncome(IncomeRequestDto request);	
-public Income updateIncome(IncomeRequestDto request,Integer userId);
-public void deleteIncomeById(int userId);
-public List<IncomeResponseDto> incomeHistory();
-IncomeResponseDto incomeHistoryByIncomeId(int id);
+Income addIncome(IncomeRequestDto request, Integer userId);
+Income updateIncome(IncomeRequestDto request,Integer incomeId,Integer userId);
+void deleteIncomeById(Integer incomeId,Integer userId);
+public List<IncomeResponseDto> incomeHistory(Integer userId);
+public IncomeResponseDto incomeHistoryByIncomeId(Integer incomeId,Integer userId);
 }

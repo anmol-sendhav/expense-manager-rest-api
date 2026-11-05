@@ -18,7 +18,7 @@ public class UserRequestDto {
 	private String name;
 	@Email(message="Email is required")
 	private String email;
-	
+
 	@Positive(message="Age must be positive")
 	private Integer age;
 	private String address;
