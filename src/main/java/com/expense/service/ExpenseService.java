@@ -12,15 +12,18 @@ import com.expense.enums.Category;
 
 public interface ExpenseService {
 
-	public Expenses addExpense(ExpenseRequestDto request, Integer userId);
+	public ExpenseResponseDto addExpense(ExpenseRequestDto request, Integer userId);
 	List <ExpenseResponseDto> getAllExpenses(Integer userId);
 	ExpenseResponseDto getExpensesById(
 	        Integer expenseId,
 	        Integer userId
 	);
-public Expenses updateExpense(ExpenseRequestDto request,Integer expenseId,Integer userId);
-void deleteExpenseById(Integer expenseId,Integer userId);
-
+	ExpenseResponseDto updateExpense(
+		    ExpenseRequestDto request,
+		    Integer expenseId,
+		    Integer userId
+		);
+	void deleteExpenseById(Integer expenseId,Integer userId);
 	public List<Expenses> searchByCategory(Integer userId,Category category);
 	public List<Expenses> searchByDateBetween(
 			Integer userId,

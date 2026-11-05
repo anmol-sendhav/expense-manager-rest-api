@@ -37,13 +37,19 @@ export default function AppLayout() {
   const name =
     user?.name || user?.fullName || user?.email || "Personal account";
 
-  const getProfileImage = (picture) => {
-    if (!picture) return null;
+	const getProfileImage = (picture) => {
+	  if (!picture) return null;
 
-    return picture.startsWith("http")
-      ? picture
-      : `http://localhost:8080${picture}`;
-  };
+	  if (picture.startsWith("http")) {
+	    return picture;
+	  }
+
+	  const baseUrl = (
+	    import.meta.env.VITE_API_BASE_URL || "http://localhost:8080"
+	  ).replace(/\/$/, "");
+
+	  return `${baseUrl}${picture.startsWith("/") ? "" : "/"}${picture}`;
+	};
 
   const profileImage = getProfileImage(user?.picture);
 

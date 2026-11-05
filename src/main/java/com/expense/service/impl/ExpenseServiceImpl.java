@@ -29,26 +29,38 @@ public class ExpenseServiceImpl implements ExpenseService {
 	private final ExpenseRepository expenseRepository;
 
 
-@Override
-public Expenses addExpense(ExpenseRequestDto request, Integer userId) {
+	@Override
+	public ExpenseResponseDto addExpense(ExpenseRequestDto request, Integer userId) {
 
-    User user = userRepository.findById(userId)
-            .orElseThrow(() ->
-                    new ResourceNotFoundException("User Not Found"));
+	    User user = userRepository.findById(userId)
+	            .orElseThrow(() ->
+	                    new ResourceNotFoundException("User Not Found"));
 
-    Expenses expense = new Expenses();
+	    Expenses expense = new Expenses();
 
-    expense.setTitle(request.getTitle());
-    expense.setCategory(request.getCategory());
-    expense.setAmount(request.getAmount());
-    expense.setDescription(request.getDescription());
-    expense.setPaymentMethod(request.getPaymentMethod());
-    expense.setUser(user);
-    expense.setDate(LocalDate.now());
+	    expense.setTitle(request.getTitle());
+	    expense.setCategory(request.getCategory());
+	    expense.setAmount(request.getAmount());
+	    expense.setDescription(request.getDescription());
+	    expense.setPaymentMethod(request.getPaymentMethod());
+	    expense.setUser(user);
+	    expense.setDate(LocalDate.now());
 
-    return expenseRepository.save(expense);
-}
+	    // Save the expense first
+	    Expenses savedExpense = expenseRepository.save(expense);
 
+	    ExpenseResponseDto response = new ExpenseResponseDto();
+
+	    response.setExpenseId(savedExpense.getExpenseId());
+	    response.setTitle(savedExpense.getTitle());
+	    response.setAmount(savedExpense.getAmount());
+	    response.setDescription(savedExpense.getDescription());
+	    response.setCategory(savedExpense.getCategory());
+	    response.setPaymentMethod(savedExpense.getPaymentMethod());
+	    response.setDate(savedExpense.getDate());
+
+	    return response;
+	}
 
 
 
@@ -97,18 +109,38 @@ public List<ExpenseResponseDto> getAllExpenses(Integer userId) {
 
 	    return response;
 	}
+	
 	@Override
-	public Expenses updateExpense(ExpenseRequestDto request,Integer expenseId,Integer userId) {
-		Expenses e=expenseRepository.findByExpenseIdAndUser_Id(expenseId, userId)
-			    .orElseThrow(() -> new RuntimeException("Expense not found"));
-		if(e != null) {
-			e.setAmount(request.getAmount());
-			e.setCategory(request.getCategory());
-			e.setDescription(request.getDescription());
-			e.setPaymentMethod(request.getPaymentMethod());
-			e.setTitle(request.getTitle());
-		}
-			return expenseRepository.save(e);
+	public ExpenseResponseDto updateExpense(
+	        ExpenseRequestDto request,
+	        Integer expenseId,
+	        Integer userId) {
+
+	    Expenses expense = expenseRepository
+	            .findByExpenseIdAndUser_Id(expenseId, userId)
+	            .orElseThrow(() ->
+	                    new ResourceNotFoundException("Expense not found"));
+
+	    expense.setAmount(request.getAmount());
+	    expense.setCategory(request.getCategory());
+	    expense.setDescription(request.getDescription());
+	    expense.setPaymentMethod(request.getPaymentMethod());
+	    expense.setTitle(request.getTitle());
+
+	    Expenses updatedExpense = expenseRepository.save(expense);
+
+	    // Convert entity into DTO
+	    ExpenseResponseDto response = new ExpenseResponseDto();
+
+	    response.setExpenseId(updatedExpense.getExpenseId());
+	    response.setTitle(updatedExpense.getTitle());
+	    response.setAmount(updatedExpense.getAmount());
+	    response.setDescription(updatedExpense.getDescription());
+	    response.setCategory(updatedExpense.getCategory());
+	    response.setPaymentMethod(updatedExpense.getPaymentMethod());
+	    response.setDate(updatedExpense.getDate());
+
+	    return response;
 	}
 
 

@@ -39,18 +39,18 @@ public class ExpenseController {
 	}
 
 
-@PostMapping("/addExpense")
-public ResponseEntity<?> addExpenses(
-        @Valid @RequestBody ExpenseRequestDto expense,
-        Authentication authentication) {
+	@PostMapping("/addExpense")
+	public ResponseEntity<ExpenseResponseDto> addExpenses(
+	        @Valid @RequestBody ExpenseRequestDto expense,
+	        Authentication authentication) {
 
-    User user = getAuthenticatedUser(authentication);
+	    User user = getAuthenticatedUser(authentication);
 
-    return ResponseEntity.ok(
-            service.addExpense(expense, user.getId())
-    );
-}
+	    ExpenseResponseDto response =
+	            service.addExpense(expense, user.getId());
 
+	    return ResponseEntity.status(201).body(response);
+	}
 
 	@GetMapping("/getAllExpenses")
 	public List<ExpenseResponseDto> getAllExpenses(
@@ -74,17 +74,18 @@ public ResponseEntity<?> addExpenses(
 	    );
 	}
 
-    @PutMapping("/updateExpenseById/{id}")
-    public ResponseEntity<Expenses> updateExpense(
-            @Valid @RequestBody ExpenseRequestDto request,
-            @PathVariable Integer id,
-            Authentication authentication) {
+	@PutMapping("/updateExpenseById/{id}")
+	public ResponseEntity<ExpenseResponseDto> updateExpense(
+	        @Valid @RequestBody ExpenseRequestDto request,
+	        @PathVariable Integer id,
+	        Authentication authentication) {
 
-        User user = getAuthenticatedUser(authentication);
+	    User user = getAuthenticatedUser(authentication);
 
-        return ResponseEntity.ok(
-                service.updateExpense(request, id, user.getId()));
-    }
+	    return ResponseEntity.ok(
+	            service.updateExpense(request, id, user.getId())
+	    );
+	}
 
     @DeleteMapping("/deleteExpenseById/{id}")
     public ResponseEntity<Void> deleteExpense(

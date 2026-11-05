@@ -40,7 +40,7 @@ public class IncomeController {
 
 
 	@PostMapping("/addIncome")
-	public ResponseEntity<Income> addIncome(
+	public ResponseEntity<IncomeResponseDto> addIncome(
 	        @Valid @RequestBody IncomeRequestDto request,
 	        Authentication authentication) {
 
@@ -48,13 +48,14 @@ public class IncomeController {
 	            .orElseThrow(() ->
 	                    new RuntimeException("User not found"));
 
-	    return ResponseEntity.ok(
-	            service.addIncome(request, user.getId())
-	    );
+	    IncomeResponseDto response =
+	            service.addIncome(request, user.getId());
+
+	    return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
 	@PutMapping("/updateIncomeByUserId/{id}")
-	public ResponseEntity<?> updateIncome(
+	public ResponseEntity<IncomeResponseDto> updateIncome(
 	        @Valid @RequestBody IncomeRequestDto request,
 	        @PathVariable Integer id,
 	        Authentication authentication) {
@@ -67,7 +68,7 @@ public class IncomeController {
 	            service.updateIncome(request, id, user.getId())
 	    );
 	}
-
+	
 	@DeleteMapping("/deleteIncomeByIncomeId/{id}")
 	public ResponseEntity<?> deleteIncomeById(
 	        @PathVariable("id") Integer incomeId,

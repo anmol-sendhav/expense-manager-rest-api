@@ -63,8 +63,11 @@ export default function Settings() {
 	    picture: data.picture || ""
 	  };
 
-      setProfile(normalized);
-      setForm(normalized);
+	  setProfile(normalized);
+	  setForm(normalized);
+
+	  // Synchronize profile data across the entire application
+	  updateUser(normalized);
     } catch (err) {
       setError(errorMessage(err));
     } finally {
@@ -192,14 +195,15 @@ export default function Settings() {
     try {
       const response = await client.put(API.profile, payload);
 
-      const updated = {
-        name: response.data.name || "",
-        email: response.data.email || profile.email,
-        age: response.data.age ?? "",
-        phone: response.data.phone || "",
-        address: response.data.address || "",
-        city: response.data.city || ""
-      };
+	  const updated = {
+	    name: response.data.name || "",
+	    email: response.data.email || profile.email,
+	    age: response.data.age ?? "",
+	    phone: response.data.phone || "",
+	    address: response.data.address || "",
+	    city: response.data.city || "",
+	    picture: response.data.picture || profile.picture || ""
+	  };
 
       setProfile(updated);
       setForm(updated);

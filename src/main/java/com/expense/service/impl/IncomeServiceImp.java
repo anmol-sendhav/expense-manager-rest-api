@@ -27,7 +27,8 @@ public class IncomeServiceImp implements IncomeService {
 	}
 
 	@Override
-	public Income addIncome(IncomeRequestDto request, Integer userId) {
+	public IncomeResponseDto addIncome(
+	        IncomeRequestDto request, Integer userId) {
 
 	    User user = userRepository.findById(userId)
 	            .orElseThrow(() ->
@@ -43,23 +44,55 @@ public class IncomeServiceImp implements IncomeService {
 	    income.setUser(user);
 	    income.setAmountDate(LocalDate.now());
 
-	    return incomeRepository.save(income);
+	    // Save income
+	    Income savedIncome = incomeRepository.save(income);
+
+	    // Convert entity into DTO
+	    IncomeResponseDto response = new IncomeResponseDto();
+
+	    response.setIncomeId(savedIncome.getUserIncomeId());
+	    response.setTitle(savedIncome.getTitle());
+	    response.setSource(savedIncome.getSource());
+	    response.setAmount(savedIncome.getAmount());
+	    response.setDescription(savedIncome.getDescription());
+	    response.setAmountDate(savedIncome.getAmountDate());
+	    response.setPaymentWay(savedIncome.getPaymentWay());
+
+	    return response;
 	}
 
-@Override
-public Income updateIncome(IncomeRequestDto request,Integer incomeId,Integer userId) {
+	@Override
+	public IncomeResponseDto updateIncome(
+	        IncomeRequestDto request,
+	        Integer incomeId,
+	        Integer userId) {
 
-	Income income = incomeRepository.findByUserIncomeIdAndUser_Id(incomeId, userId)
-	.orElseThrow(() -> new RuntimeException("Income not found"));
+	    Income income = incomeRepository
+	            .findByUserIncomeIdAndUser_Id(incomeId, userId)
+	            .orElseThrow(() ->
+	                    new ResourceNotFoundException("Income not found"));
 
-    income.setAmount(request.getAmount());
-    income.setDescription(request.getDescription());
-    income.setPaymentWay(request.getPaymentWay());
-    income.setSource(request.getSource());
-    income.setTitle(request.getTitle());
+	    income.setAmount(request.getAmount());
+	    income.setDescription(request.getDescription());
+	    income.setPaymentWay(request.getPaymentWay());
+	    income.setSource(request.getSource());
+	    income.setTitle(request.getTitle());
 
-    return incomeRepository.save(income);
-}
+	    Income updatedIncome = incomeRepository.save(income);
+
+	    // Convert entity into DTO
+	    IncomeResponseDto response = new IncomeResponseDto();
+
+	    response.setIncomeId(updatedIncome.getUserIncomeId());
+	    response.setTitle(updatedIncome.getTitle());
+	    response.setSource(updatedIncome.getSource());
+	    response.setAmount(updatedIncome.getAmount());
+	    response.setDescription(updatedIncome.getDescription());
+	    response.setAmountDate(updatedIncome.getAmountDate());
+	    response.setPaymentWay(updatedIncome.getPaymentWay());
+
+	    return response;
+	}
 
 @Override
 public void deleteIncomeById(Integer incomeId, Integer userId) {
