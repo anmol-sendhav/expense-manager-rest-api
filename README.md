@@ -1,46 +1,130 @@
-# Expense Manager REST API
+# ExpensePilot – Full Stack Expense Management Application
 
-A Spring Boot based REST API for managing personal expenses, budgets, and users. This project helps users track their income, expenses, and budget efficiently with secure authentication using JWT.
+ExpensePilot is a full-stack expense management application built using **Java Spring Boot, React, and MySQL**. It helps users manage their personal finances by tracking income, expenses, budgets, and financial reports through a modern and responsive interface.
+
+The application includes secure JWT-based authentication, dashboard analytics, notifications, PDF reports, and an AI-powered chatbot to assist users with financial queries.
 
 ## Features
 
+### Authentication & Security
 - User Registration and Login
-- JWT Authentication & Authorization
-- Expense CRUD Operations
-- Budget Management
+- JWT Authentication and Authorization
+- Password Encryption using BCrypt
+- Protected REST APIs
+- User-specific data access
+
+### Expense Management
+- Add, View, Update, and Delete Expenses
 - Category-wise Expense Tracking
-- User Profile Management
-- Input Validation
-- Global Exception Handling
-- RESTful APIs
-- MySQL Database Integration
+- Expense Filtering
+- Secure User-specific Expense Records
 
-## Tech Stack
+### Income Management
+- Add, View, Update, and Delete Income
+- Track Multiple Income Sources
+- Income History
 
+### Budget Management
+- Create and Manage Budgets
+- Track Budget Utilization
+- Monitor Spending
+
+### Dashboard & Analytics
+- Total Income and Expenses
+- Current Balance
+- Savings Rate
+- Income and Expense Statistics
+- Financial Overview
+
+### AI Financial Assistant
+- AI-powered chatbot using Spring AI
+- Integration with Groq API
+- Ask financial and budgeting-related questions
+- Conversational responses through the application
+
+### Notifications
+- View Notifications
+- Unread Notification Count
+- Mark Notifications as Read
+- Mark All Notifications as Read
+- Delete Notifications
+
+### Reports & Profile
+- Generate Financial Reports
+- PDF Export
+- Manage User Profile
+- Profile Photo Management
+
+## Technology Stack
+
+### Backend
 - Java 17
 - Spring Boot
+- Spring MVC
 - Spring Data JPA
 - Spring Security
-- JWT
+- JWT Authentication
 - Hibernate
-- MySQL
+- Spring AI
 - Maven
 - Lombok
-- ModelMapper
+- ModelMapper / MapStruct
+
+### Frontend
+- React
+- JavaScript
+- HTML5
+- CSS3
+- Axios
+- React Router
+
+### Database
+- MySQL
+
+### AI Integration
+- Spring AI
+- Groq API
+- GPT-OSS-20B Model
+
+### Tools & Deployment
+- Git and GitHub
 - Postman
+- Docker
+- Docker Compose
 
-## Project Structure
+## Project Architecture
 
-```
-src
- ├── controller
- ├── service
- ├── repository
- ├── entity
- ├── dto
- ├── config
- ├── security
- └── exception
+```text
+ExpensePilot
+│
+├── Backend
+│   ├── src/main/java/com/expense
+│   │   ├── config
+│   │   ├── controller
+│   │   ├── dto
+│   │   ├── entity
+│   │   ├── enums
+│   │   ├── exception
+│   │   ├── mapper
+│   │   ├── repository
+│   │   ├── security
+│   │   └── service
+│   │
+│   └── src/main/resources
+│
+├── expensepilot-frontend
+│   ├── src
+│   │   ├── components
+│   │   ├── context
+│   │   ├── pages
+│   │   └── api
+│   └── package.json
+│
+├── Dockerfile
+├── compose.yaml
+├── .dockerignore
+├── .env.example
+└── README.md
 ```
 
 ## API Endpoints
@@ -48,75 +132,123 @@ src
 ### Authentication
 
 | Method | Endpoint |
-|----------|----------|
-| POST | /auth/register |
-| POST | /auth/login |
+|---|---|
+| POST | `/auth/register` |
+| POST | `/auth/login` |
 
 ### Expenses
 
 | Method | Endpoint |
-|----------|----------|
-| POST | /expenses |
-| GET | /expenses |
-| GET | /expenses/{id} |
-| PUT | /expenses/{id} |
-| DELETE | /expenses/{id} |
+|---|---|
+| POST | `/expenses` |
+| GET | `/expenses` |
+| GET | `/expenses/{id}` |
+| PUT | `/expenses/{id}` |
+| DELETE | `/expenses/{id}` |
 
-### Budget
+### Income
 
 | Method | Endpoint |
-|----------|----------|
-| POST | /budgets |
-| GET | /budgets |
-| PUT | /budgets/{id} |
-| DELETE | /budgets/{id} |
+|---|---|
+| POST | `/income` |
+| GET | `/income` |
+| PUT | `/income/{id}` |
+| DELETE | `/income/{id}` |
 
-## Database Configuration
+### Budgets
 
-Update `application.properties`:
+| Method | Endpoint |
+|---|---|
+| POST | `/budgets` |
+| GET | `/budgets` |
+| PUT | `/budgets/{id}` |
+| DELETE | `/budgets/{id}` |
 
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/expense_manager
-spring.datasource.username=root
-spring.datasource.password=your_password
+### AI Chatbot
+
+| Method | Endpoint |
+|---|---|
+| POST | `/chat` |
+
+### Notifications
+
+| Method | Endpoint |
+|---|---|
+| GET | `/notifications` |
+| GET | `/notifications/unread-count` |
+| PUT | `/notifications/{id}/read` |
+| PUT | `/notifications/read-all` |
+| DELETE | `/notifications/{id}` |
+
+*Other endpoints include dashboard, profile, profile photo, and reports.*
+
+## Environment Configuration
+
+Configure your environment variables using a `.env` file in the backend project root.
+
+Example:
+
+```env
+GROQ_API_KEY=your_groq_api_key
 ```
 
-## Running the Project
+Configure your MySQL database in `application.properties` using environment variables or your local database credentials.
+
+**Important:** Never commit your actual `.env` file or API keys to GitHub. Use `.env.example` with placeholder values.
+
+## Running the Backend
+
+Clone the repository:
 
 ```bash
 git clone https://github.com/anmol-sendhav/expense-manager-rest-api.git
 
 cd expense-manager-rest-api
-
-mvn clean install
-
-mvn spring-boot:run
 ```
 
-## Screenshots
+Run the Spring Boot application:
 
-### Register API
-![Register](screenshots/register.png)
+```bash
+./mvnw spring-boot:run
+```
 
-### Login API
-![Login](screenshots/login.png)
+On Windows:
 
-### Add Expense API
-![Add Expense](screenshots/Add%20Expense%20API.png)
+```bash
+mvnw.cmd spring-boot:run
+```
 
-### Get All Expenses API
-![Get All Expenses](screenshots/Get%20All%20Expenses%20API.png)
+## Running the Frontend
 
-### Add Budget API
-![Add Budget](screenshots/Budget_Add%20API.png)
+Open another terminal:
 
-## Future Enhancements
+```bash
+cd expensepilot-frontend
 
-- Dashboard Analytics
-- Monthly Reports
-- Export to PDF/Excel
-- Email Notifications
-- Docker Deployment
+npm install
+
+npm run dev
+```
+
+Open the local URL provided by Vite in your browser.
+
+## Docker
+
+The project includes Docker configuration for containerizing the application.
+
+```bash
+docker compose up --build
+```
+
+Configure the required database and environment variables before starting the containers.
+
+## Future Improvements
+
+- AI chatbot with personalized financial insights using actual user financial data
+- Real-time notifications
+- Advanced financial analytics
+- Cloud deployment
+- Automated testing
 
 ## Author
 
@@ -124,3 +256,5 @@ mvn spring-boot:run
 
 BCA Final Year Student  
 Aspiring Java Backend Developer
+
+GitHub: https://github.com/anmol-sendhav
