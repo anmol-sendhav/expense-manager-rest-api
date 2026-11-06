@@ -262,7 +262,7 @@ export default function Settings() {
 			          photoPreview ||
 			          (profile.picture.startsWith("http")
 			            ? profile.picture
-			            : `http://localhost:8080${profile.picture}`)
+			            : `${(import.meta.env.VITE_API_BASE_URL || "http://localhost:8080").replace(/\/$/, "")}${profile.picture.startsWith("/") ? "" : "/"}${profile.picture}`)
 			        }
 			        alt="Profile"
 			      />
